@@ -34,9 +34,10 @@ public class Game extends JPanel implements KeyListener, Runnable {
     }
 
     public void initGame() {
-        int boardIndentX = (Game.WIDTH - Board.SIZE) / 2;
-        int boardIndentY = (Game.HEIGHT - Board.SIZE - boardIndentX);
-        board = new Board(boardIndentX, boardIndentY);
+        baseImage = new BufferedImage(WIDTH, HEIGHT,
+                BufferedImage.TYPE_INT_ARGB);
+        int boardIndent = (Game.WIDTH - Board.SIZE) / 2;
+        board = new Board(boardIndent, Game.HEIGHT - Board.SIZE - boardIndent);
         thread = new Thread(this);
         thread.start();
     }
@@ -85,8 +86,6 @@ public class Game extends JPanel implements KeyListener, Runnable {
 
     @Override
     public void paint(Graphics g) {
-        baseImage = new BufferedImage(WIDTH, HEIGHT,
-                BufferedImage.TYPE_INT_ARGB);
         Graphics2D gs = (Graphics2D) baseImage.getGraphics();
         gs.setColor(Palette.BOARD_BG);
         gs.fillRect(0, 0, WIDTH, HEIGHT);
