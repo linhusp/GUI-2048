@@ -17,7 +17,8 @@ public class Game extends JPanel implements KeyListener, Runnable {
 
     public static final int WIDTH = 500;
     public static final int HEIGHT = 600;
-    public static final Font MAIN_FONT = new Font("Roboto", Font.BOLD, 44);
+    // Change "Arial" to "Roboto" font if you want better exp
+    public static final Font MAIN_FONT = new Font("Arial", Font.BOLD, 44);
 
     private Thread thread;
     private BufferedImage baseImage;
