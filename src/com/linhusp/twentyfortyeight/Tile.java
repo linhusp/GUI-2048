@@ -88,54 +88,14 @@ public class Tile {
 
     public void drawTileImage() {
         Graphics2D gs = (Graphics2D) tileImage.getGraphics();
-        textColor = new Color(0xf9f6f2);
-
-        if (this.value == 2) {
-            backgroundColor = new Color(0xeee4da);
-            textColor = new Color(0x776e65);
-        } else if (this.value == 4) {
-            backgroundColor = new Color(0xede0c8);
-            textColor = new Color(0x776e65);
-        } else if (this.value == 8) {
-            backgroundColor = new Color(0xf2b179);
-        } else if (this.value == 16) {
-            backgroundColor = new Color(0xf59563);
-        } else if (this.value == 32) {
-            backgroundColor = new Color(0xf67c5f);
-        } else if (this.value == 64) {
-            backgroundColor = new Color(0xf65e3b);
-        } else if (this.value == 128) {
-            backgroundColor = new Color(0xedcf72);
-        } else if (this.value == 256) {
-            backgroundColor = new Color(0xedcc61);
-        } else if (this.value == 512) {
-            backgroundColor = new Color(0xedc850);
-        } else if (this.value == 1024) {
-            backgroundColor = new Color(0xedc53f);
-        } else if (this.value == 2048) {
-            backgroundColor = new Color(0xedc22e);
-        } else if (this.value == 4096) {
-            backgroundColor = new Color(0xff3d3e);
-        } else {
-            backgroundColor = new Color(0xff1e1e);
-        }
-
         gs.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
                 RenderingHints.VALUE_ANTIALIAS_ON);
+        backgroundColor = getBackground();
         gs.setColor(backgroundColor);
         gs.fillRoundRect(0, 0, SIZE, SIZE, Board.ARC, Board.ARC);
+        textColor = getForeground();
         gs.setColor(textColor);
-
-        if (this.value <= 64) {
-            tileFont = Game.MAIN_FONT;
-        } else if (this.value <= 512) {
-            tileFont = Game.MAIN_FONT.deriveFont(38f);
-        } else if (this.value <= 8192) {
-            tileFont = Game.MAIN_FONT.deriveFont(32f);
-        } else {
-            tileFont = Game.MAIN_FONT.deriveFont(26f);
-        }
-
+        tileFont = getFontResize();
         gs.setFont(tileFont);
         int indentX = (SIZE
                 - getTextX(String.valueOf(this.value), tileFont, gs)) / 2;
@@ -143,6 +103,50 @@ public class Tile {
                 + getTextY(String.valueOf(this.value), tileFont, gs)) / 2;
         gs.drawString(String.valueOf(this.value), indentX, indentY);
         gs.dispose();
+    }
+
+    public Color getForeground() {
+        return this.value < 8 ? new Color(0x776e65) : new Color(0xf9f6f2);
+    }
+
+    public Color getBackground() {
+        switch (this.value) {
+        case 2:
+            return new Color(0xeee4da);
+        case 4:
+            return new Color(0xede0c8);
+        case 8:
+            return new Color(0xf2b179);
+        case 16:
+            return new Color(0xf59563);
+        case 32:
+            return new Color(0xf67c5f);
+        case 64:
+            return new Color(0xf65e3b);
+        case 128:
+            return new Color(0xedcf72);
+        case 256:
+            return new Color(0xedcc61);
+        case 512:
+            return new Color(0xedc850);
+        case 1024:
+            return new Color(0xedc53f);
+        case 2048:
+            return new Color(0xedc22e);
+        default:
+            return new Color(0xff1e1e);
+        }
+    }
+
+    public Font getFontResize() {
+        if (this.value <= 64) {
+            return Game.MAIN_FONT;
+        } else if (this.value <= 512) {
+            return Game.MAIN_FONT.deriveFont(38f);
+        } else if (this.value <= 8192) {
+            return Game.MAIN_FONT.deriveFont(32f);
+        }
+        return Game.MAIN_FONT.deriveFont(26f);
     }
 
     public int getTextX(String v, Font tileFont, Graphics2D g) {
