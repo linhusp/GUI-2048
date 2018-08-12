@@ -21,9 +21,9 @@ public class Tile {
     private Font tileFont;
     private boolean canCombine = true;
 
-    private BufferedImage creatorImage;
-    private double scaleCreator = 0.1;
-    private boolean creatorAnimation = true;
+    private BufferedImage spawnImage;
+    private double scaleSpawn = 0.1;
+    private boolean spawnAnimation = true;
     private BufferedImage combineImage;
     private double scaleCombine = 1.2;
     private boolean combineAnimation = false;
@@ -33,57 +33,10 @@ public class Tile {
         this.x = x;
         this.y = y;
         tileImage = new BufferedImage(SIZE, SIZE, BufferedImage.TYPE_INT_ARGB);
-        creatorImage = new BufferedImage(SIZE, SIZE,
-                BufferedImage.TYPE_INT_ARGB);
+        spawnImage = new BufferedImage(SIZE, SIZE, BufferedImage.TYPE_INT_ARGB);
         combineImage = new BufferedImage(SIZE * 2, SIZE * 2,
                 BufferedImage.TYPE_INT_ARGB);
         drawTileImage();
-    }
-
-    public void render(Graphics2D g) {
-        if (this.creatorAnimation) {
-            g.drawImage(creatorImage, this.x, this.y, null);
-        } else if (this.combineAnimation) {
-            g.drawImage(combineImage,
-                    (int) (this.x + SIZE / 2 * (1 - this.scaleCombine)),
-                    (int) (this.y + SIZE / 2 * (1 - this.scaleCombine)), null);
-        } else {
-            g.drawImage(tileImage, this.x, this.y, null);
-        }
-    }
-
-    public void update() {
-        if (this.creatorAnimation) {
-            AffineTransform transform = new AffineTransform();
-            transform.translate(SIZE / 2 * (1 - this.scaleCreator),
-                    SIZE / 2 * (1 - this.scaleCreator));
-            transform.scale(this.scaleCreator, this.scaleCreator);
-            Graphics2D gs = (Graphics2D) creatorImage.getGraphics();
-            gs.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-                    RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-            gs.drawImage(tileImage, transform, null);
-            this.scaleCreator += 0.1;
-            gs.dispose();
-
-            if (this.scaleCreator >= 1) {
-                this.creatorAnimation = false;
-            }
-        } else if (this.combineAnimation) {
-            AffineTransform transform = new AffineTransform();
-            transform.translate(SIZE / 2 * (1 - this.scaleCombine),
-                    SIZE / 2 * (1 - this.scaleCombine));
-            transform.scale(this.scaleCombine, this.scaleCombine);
-            Graphics2D gs = (Graphics2D) combineImage.getGraphics();
-            gs.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-                    RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-            gs.drawImage(tileImage, transform, null);
-            this.scaleCombine += 0.05;
-            gs.dispose();
-
-            if (this.scaleCombine <= 1) {
-                this.combineAnimation = false;
-            }
-        }
     }
 
     public void drawTileImage() {
@@ -97,11 +50,10 @@ public class Tile {
         gs.setColor(textColor);
         tileFont = getFontResize();
         gs.setFont(tileFont);
-        int indentX = (SIZE
-                - getTextX(String.valueOf(this.value), tileFont, gs)) / 2;
-        int indentY = (SIZE
-                + getTextY(String.valueOf(this.value), tileFont, gs)) / 2;
-        gs.drawString(String.valueOf(this.value), indentX, indentY);
+        String strValue = String.valueOf(this.value);
+        int indentX = (SIZE - getTextX(strValue, tileFont, gs)) / 2;
+        int indentY = (SIZE + getTextY(strValue, tileFont, gs)) / 2;
+        gs.drawString(strValue, indentX, indentY);
         gs.dispose();
     }
 
@@ -149,17 +101,66 @@ public class Tile {
         return Game.MAIN_FONT.deriveFont(26f);
     }
 
-    public int getTextX(String v, Font tileFont, Graphics2D g) {
-        g.setFont(tileFont);
-        Rectangle2D x = g.getFontMetrics().getStringBounds(v, g);
+    public int getTextX(String text, Font font, Graphics2D g) {
+        g.setFont(font);
+        Rectangle2D x = g.getFontMetrics().getStringBounds(text, g);
         return (int) x.getWidth();
     }
 
-    public int getTextY(String v, Font tileFont, Graphics2D g) {
-        g.setFont(tileFont);
-        return v.length() == 0 ? 0
-                : (int) new TextLayout(v, tileFont, g.getFontRenderContext())
-                        .getBounds().getHeight();
+    public int getTextY(String text, Font font, Graphics2D g) {
+        g.setFont(font);
+
+        if (text.length() == 0) {
+            return 0;
+        }
+
+        TextLayout textLayout = new TextLayout(text, font,
+                g.getFontRenderContext());
+        return (int) textLayout.getBounds().getHeight();
+    }
+
+    public void render(Graphics2D g) {
+        if (this.spawnAnimation) {
+            g.drawImage(spawnImage, this.x, this.y, null);
+        } else if (this.combineAnimation) {
+            g.drawImage(combineImage,
+                    (int) (this.x + SIZE / 2 - this.scaleCombine * SIZE / 2),
+                    (int) (this.y + SIZE / 2 - this.scaleCombine * SIZE / 2),
+                    null);
+        } else {
+            g.drawImage(tileImage, this.x, this.y, null);
+        }
+    }
+
+    public void update() {
+        if (this.spawnAnimation) {
+            addAnimation(scaleSpawn, spawnImage, tileImage);
+            this.scaleSpawn += 0.1;
+
+            if (this.scaleSpawn >= 1) {
+                this.spawnAnimation = false;
+            }
+        } else if (this.combineAnimation) {
+            addAnimation(scaleCombine, combineImage, tileImage);
+            this.scaleCombine -= 0.05;
+
+            if (this.scaleCombine <= 1) {
+                this.combineAnimation = false;
+            }
+        }
+    }
+
+    public void addAnimation(double scaleAnimation,
+            BufferedImage animationImage, BufferedImage baseImage) {
+        AffineTransform transform = new AffineTransform();
+        transform.translate(Tile.SIZE / 2 * (1 - scaleAnimation),
+                Tile.SIZE / 2 * (1 - scaleAnimation));
+        transform.scale(scaleAnimation, scaleAnimation);
+        Graphics2D gs = (Graphics2D) animationImage.getGraphics();
+        gs.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+                RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+        gs.drawImage(baseImage, transform, null);
+        gs.dispose();
     }
 
     public int getValue() {
@@ -193,5 +194,13 @@ public class Tile {
 
     public void setCanCombine(boolean canCombine) {
         this.canCombine = canCombine;
+    }
+
+    public boolean isCombineAnimation() {
+        return this.combineAnimation;
+    }
+
+    public void setCombineAnimation(boolean combineAnimation) {
+        this.combineAnimation = combineAnimation;
     }
 }

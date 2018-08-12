@@ -16,7 +16,7 @@ public class Board {
     private int indentX, indentY;
     private BufferedImage background;
     private BufferedImage boardImg;
-    // private Random random;
+    private Random random;
     private Tile[][] board;
 
     private boolean started;
@@ -29,7 +29,7 @@ public class Board {
                 BufferedImage.TYPE_INT_RGB);
         boardImg = new BufferedImage(Board.SIZE, Board.SIZE,
                 BufferedImage.TYPE_INT_RGB);
-        // random = new Random();
+        random = new Random();
         board = new Tile[Board.LIMIT][Board.LIMIT];
         init();
     }
@@ -60,7 +60,6 @@ public class Board {
         Graphics2D gs = (Graphics2D) boardImg.getGraphics();
         gs.drawImage(background, 0, 0, null);
 
-        // render tiles
         for (int y = 0; y < LIMIT; y++) {
             for (int x = 0; x < LIMIT; x++) {
                 Tile currTile = board[x][y];
@@ -184,6 +183,7 @@ public class Board {
                 board[preX][preY].setCanCombine(false);
                 board[preX][preY].setValue(currTile.getValue() * 2);
                 board[preX - xd][preY - yd] = null;
+                board[preX][preY].setCombineAnimation(true);
                 canMove = true;
             } else {
                 move = false;
@@ -232,7 +232,6 @@ public class Board {
     }
 
     public void getRandomTile() {
-        Random random = new Random();
         boolean valid = false;
         while (!valid) {
             int randX = random.nextInt(LIMIT);
