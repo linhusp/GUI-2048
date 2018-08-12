@@ -12,7 +12,7 @@ public class Start extends JFrame {
         this.setResizable(false);
         this.setContentPane(new Game());
         this.pack();
-        // this.setLocationRelativeTo(null);
+        this.setLocationRelativeTo(null);
         this.setVisible(true);
     }
 
